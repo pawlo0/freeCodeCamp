@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My test site</title>
+    <script
+      src="https://unpkg.com/react@16/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="challenge-node"></div>
+    <script type="text/babel">
+      const CurrentDate = props => {
+        return (
+          <div>
+            <p>The current date is: {props.date}</p>
+          </div>
+        );
+      };
+
+      class Calendar extends React.Component {
+        constructor(props) {
+          super(props);
+        }
+        render() {
+          return (
+            <div>
+              <h3>What date is it?</h3>
+              <CurrentDate date={Date()} />
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.render(<Calendar />, document.getElementById("challenge-node"));
+    </script>
+  </body>
+</html>
