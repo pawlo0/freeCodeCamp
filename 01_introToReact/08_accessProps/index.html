@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My test site</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  </head>
+
+  <body>
+    <div id="challenge-node"></div>
+    <script type="text/babel">
+      class ReturnTempPassword extends React.Component {
+        constructor(props) {
+          super(props)
+        }
+        render() {
+          return (
+            <div>
+              <p>Your temporary password is: <strong>{this.props.tempPassword}</strong></p>
+            </div>
+          )
+        }
+      }
+
+      class ResetPassword extends React.Component {
+        constructor(props) {
+          super(props)
+        }
+        render() {
+          return (
+            <div>
+              <h2>Reset Password</h2>
+              <h3>We've generated a new temporary password for you.</h3>
+              <h3>Please reset this password from your account settings ASAP.</h3>
+              < ReturnTempPassword tempPassword="qwertyui" />
+            </div>
+          )
+        }
+      }
+      ReactDOM.render(<ResetPassword />, document.getElementById("challenge-node"));
+    </script>
+  </body>
+</html>
