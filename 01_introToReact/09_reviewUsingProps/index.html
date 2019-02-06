@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My test site</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  </head>
+
+  <body>
+    <div id="challenge-node"></div>
+    <script type="text/babel">
+      class CampSite extends React.Component {
+        constructor(props) {
+          super(props);
+        }
+        render() {
+          return (
+            <div>
+              <Camper />
+            </div>
+          );
+        }
+      }
+
+      const Camper = props => {
+        return (
+          <div>
+            <h2>The name of this camp is:</h2>
+            <p>{props.name}</p>
+          </div>
+        );
+      };
+
+      Camper.defaultProps = {
+        name: "CamperBot"
+      };
+
+      Camper.propTypes = {
+        name: PropTypes.string.isRequired
+      };
+
+      ReactDOM.render(<CampSite />, document.getElementById("challenge-node"));
+    </script>
+  </body>
+</html>
