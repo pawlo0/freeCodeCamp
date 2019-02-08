@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My test site</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  </head>
+
+  <body>
+    <div id="challenge-node"></div>
+    <script type="text/babel">
+      const styles = {
+        color: "purple",
+        fontSize: 40,
+        border: "2px solid purple"
+      };
+      class Colorful extends React.Component {
+        render() {
+          return <div style={styles}>Style Me!</div>;
+        }
+      }
+
+      ReactDOM.render(<Colorful />, document.getElementById("challenge-node"));
+    </script>
+  </body>
+</html>
