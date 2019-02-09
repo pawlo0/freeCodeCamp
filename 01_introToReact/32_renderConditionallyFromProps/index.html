@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My test site</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  </head>
+
+  <body>
+    <div id="challenge-node"></div>
+    <script type="text/babel">
+      class Results extends React.Component {
+        constructor(props) {
+          super(props);
+        }
+        render() {
+          return <h1>{this.props.fiftyFifty ? "You win!" : "You lose!"}</h1>;
+        }
+      }
+
+      class GameOfChange extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            counter: 1
+          };
+          this.handleClick = this.handleClick.bind(this);
+        }
+        handleClick() {
+          this.setState({
+            counter: this.state.counter + 1
+          });
+        }
+
+        render() {
+          let expression = Math.random() > 0.5;
+          return (
+            <div>
+              <button onClick={this.handleClick}>Play Again!</button>
+              <Results fiftyFifty={expression} />
+              <p>{"Turn: " + this.state.counter}</p>
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.render(
+        <GameOfChange />,
+        document.getElementById("challenge-node")
+      );
+    </script>
+  </body>
+</html>
