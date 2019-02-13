@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My test site</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/redux@4.0.1/dist/redux.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  </head>
+
+  <body>
+    <div id="challenge-node"></div>
+    <script type="text/babel">
+      const defaultState = {
+        user: "CamperBot",
+        status: "offline",
+        friends: "732,982",
+        community: "freeCodeCamp"
+      };
+
+      const immutableReducer = (state = defaultState, action) => {
+        switch (action.type) {
+          case "ONLINE":
+            // don't mutate state here or the tests will fail
+            const newState = Object.assign({}, state);
+            newState.status = "online";
+            return newState;
+          default:
+            return state;
+        }
+      };
+
+      const wakeUp = () => {
+        return {
+          type: "ONLINE"
+        };
+      };
+
+      const store = Redux.createStore(immutableReducer);
+
+      store.dispatch(wakeUp());
+      console.log(store.getState());
+    </script>
+  </body>
+</html>
