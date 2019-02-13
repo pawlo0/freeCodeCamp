@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My test site</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/redux@4.0.1/dist/redux.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  </head>
+
+  <body>
+    <div id="challenge-node"></div>
+    <script type="text/babel">
+      const ADD_TO_DO = "ADD_TO_DO";
+
+      const todos = [
+        "Go to the store",
+        "Clean the house",
+        "Cook dinner",
+        "Learn to code"
+      ];
+
+      const immutableReducer = (state = todos, { type, todo }) => {
+        switch (type) {
+          case ADD_TO_DO:
+            return [...state, todo];
+
+          default:
+            return state;
+        }
+      };
+      const addToDo = todo => ({
+        type: ADD_TO_DO,
+        todo
+      });
+
+      const store = Redux.createStore(immutableReducer);
+
+      store.dispatch(addToDo("Learn React"));
+      console.log(store.getState());
+    </script>
+  </body>
+</html>
