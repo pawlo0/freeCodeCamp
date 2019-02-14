@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My test site</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/redux@4.0.1/dist/redux.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/6.0.0/react-redux.min.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  </head>
+
+  <body>
+    <div id="challenge-node"></div>
+    <script type="text/babel">
+      // Redux Code:
+      const ADD = "ADD";
+
+      const addMessage = message => {
+        return {
+          type: ADD,
+          message
+        };
+      };
+
+      const messageReducer = (state = [], action) => {
+        switch (action.type) {
+          case ADD:
+            return [...state, action.message];
+          default:
+            return state;
+        }
+      };
+
+      const store = Redux.createStore(messageReducer);
+
+      // React Code:
+
+      class DisplayMessages extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            input: "",
+            messages: []
+          };
+          this.handleChange = this.handleChange.bind(this);
+          this.submitMessage = this.submitMessage.bind(this);
+        }
+        handleChange(event) {
+          this.setState({
+            input: event.target.value
+          });
+        }
+        submitMessage() {
+          const currentMessage = this.state.input;
+          this.setState({
+            input: "",
+            messages: this.state.messages.concat(currentMessage)
+          });
+        }
+        render() {
+          return (
+            <div>
+              <h2>Type in a new Message:</h2>
+              <input value={this.state.input} onChange={this.handleChange} />
+              <br />
+              <button onClick={this.submitMessage}>Submit</button>
+              <ul>
+                {this.state.messages.map((message, idx) => {
+                  return <li key={idx}>{message}</li>;
+                })}
+              </ul>
+            </div>
+          );
+        }
+      }
+
+      const Provider = ReactRedux.Provider;
+
+      class AppWrapper extends React.Component {
+        // render the Provider here
+        render() {
+          return (
+            <Provider store={store}>
+              <DisplayMessages />
+            </Provider>
+          );
+        }
+        // change code above this line
+      }
+      ReactDOM.render(
+        <AppWrapper />,
+        document.getElementById("challenge-node")
+      );
+    </script>
+  </body>
+</html>
