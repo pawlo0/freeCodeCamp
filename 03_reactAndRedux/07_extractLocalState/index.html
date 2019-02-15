@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My test site</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/redux@4.0.1/dist/redux.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/6.0.0/react-redux.min.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  </head>
+
+  <body>
+    <div id="App"></div>
+    <script type="text/babel">
+      //Redux
+      const ADD = "ADD";
+
+      const addMessage = message => {
+        return {
+          type: ADD,
+          message
+        };
+      };
+
+      const messageReducer = (state = [], { type, message }) => {
+        switch (type) {
+          case ADD:
+            return [...state, message];
+          default:
+            return state;
+        }
+      };
+
+      const store = Redux.createStore(messageReducer);
+
+      //React
+      class Presentational extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = { input: "" };
+          this.handleChange = this.handleChange.bind(this);
+          this.submitMessage = this.submitMessage.bind(this);
+        }
+        handleChange(e) {
+          this.setState({ input: e.target.value });
+        }
+        submitMessage() {
+          this.props.submitNewMessage(this.state.input);
+          this.setState({
+            input: ""
+          });
+        }
+        render() {
+          return (
+            <div>
+              <h2>Type in a new Message</h2>
+              <input onChange={this.handleChange} value={this.state.input} />
+              <br />
+              <button onClick={this.submitMessage}>Submit</button>
+              <ul>
+                {this.props.messages.map((message, index) => (
+                  <li key={index}>{message}</li>
+                ))}
+              </ul>
+            </div>
+          );
+        }
+      }
+
+      //React-Redux
+      const mapStateToProps = state => {
+        return { messages: state };
+      };
+
+      const mapDispatchToProps = dispatch => {
+        return {
+          submitNewMessage: message => dispatch(addMessage(message))
+        };
+      };
+
+      const Provider = ReactRedux.Provider;
+      const connect = ReactRedux.connect;
+
+      const Container = connect(
+        mapStateToProps,
+        mapDispatchToProps
+      )(Presentational);
+
+      class AppWrapper extends React.Component {
+        render() {
+          return (
+            <Provider store={store}>
+              <Container />
+            </Provider>
+          );
+        }
+      }
+
+      ReactDOM.render(<AppWrapper />, document.getElementById("App"));
+    </script>
+  </body>
+</html>
