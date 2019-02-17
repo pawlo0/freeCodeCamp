@@ -24,7 +24,6 @@
         }
         componentDidMount() {
           // Retrive quotes from JSON URL
-          var self = this;
           const requestURL =
             "https://gist.githubusercontent.com/camperbot/5a022b72e96c4c9585c32bf6a75f62d9/raw/e3c6895ce42069f0ee7e991229064f167fe8ccdc/quotes.json";
           let request = new XMLHttpRequest();
@@ -34,10 +33,10 @@
           let quotesArray = [];
           request.onload = function() {
             request.response.quotes.map(quote => quotesArray.push(quote));
-            self.setState({
+            this.setState({
               quote: quotesArray[Math.floor(Math.random() * quotesArray.length)]
             });
-          };
+          }.bind(this);
         }
         render() {
           return (
