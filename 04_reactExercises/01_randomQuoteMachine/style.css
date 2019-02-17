@@ -1,0 +1,70 @@
+html,
+body {
+  height: 100%;
+}
+
+#App {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #aaa;
+}
+
+#quote-box {
+  background-color: #fff;
+  width: 500px;
+  padding: 10px 30px 30px;
+  border-radius: 10px;
+}
+
+#text {
+  text-align: center;
+  height: auto;
+  font-weight: 500;
+  font-size: 1.75em;
+}
+
+#author {
+  font-size: 1em;
+  text-align: right;
+}
+
+.buttons {
+  width: 100%;
+  margin: auto;
+  display: block;
+}
+
+.button {
+  height: 38px;
+  border: none;
+  border-radius: 3px;
+  color: #fff;
+  background-color: #333;
+  outline: none;
+  font-size: 0.85em;
+  padding: 8px 18px 6px 18px;
+  margin-top: 30px;
+  opacity: 1;
+  cursor: pointer;
+}
+
+#new-quote {
+  float: right;
+}
+
+#new-quote:hover {
+  opacity: 0.9;
+}
+
+#tweet-quote {
+  float: left;
+  padding: 0px;
+  padding-top: 8px;
+  text-align: center;
+  font-size: 1.2em;
+  margin-right: 5px;
+  height: 30px;
+  width: 40px;
+}
