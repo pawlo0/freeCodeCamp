@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Testing React Transition Group</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <!-- <script src="https://unpkg.com/redux@4.0.1/dist/redux.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/6.0.0/react-redux.min.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script> -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/react-transition-group/dist/react-transition-group.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.32.4/react-bootstrap.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="style1.css" />
+  </head>
+
+  <body>
+    <div id="App"></div>
+    <script type="text/babel">
+      const { CSSTransition } = ReactTransitionGroup;
+      const {
+        Grid,
+        Button,
+        FormGroup,
+        ControlLabel,
+        FormControl,
+        HelpBlock
+      } = ReactBootstrap;
+
+      class Example extends React.Component {
+        state = {
+          name: "",
+          showValidationMessage: false,
+          showValidationButton: false
+        };
+
+        render() {
+          const {
+            name,
+            showValidationMessage,
+            showValidationButton
+          } = this.state;
+          return (
+            <Grid style={{ paddingTop: "2rem" }}>
+              <form style={{ marginTop: "1rem" }}>
+                <FormGroup
+                  validationState={showValidationMessage ? "success" : null}
+                >
+                  <ControlLabel>Your name</ControlLabel>
+                  <FormControl
+                    type="text"
+                    value={name}
+                    onFocus={() => {
+                      this.setState({
+                        showValidationMessage: false
+                      });
+                    }}
+                    onChange={event => {
+                      this.setState({
+                        name: event.target.value,
+                        showValidationButton: true
+                      });
+                    }}
+                  />
+                  <CSSTransition
+                    in={showValidationMessage}
+                    timeout={300}
+                    classNames="message"
+                    unmountOnExit
+                    onExited={() => {
+                      this.setState({
+                        showValidationButton: true
+                      });
+                    }}
+                  >
+                    {state => (
+                      <HelpBlock>
+                        Your name rocks!
+                        <CSSTransition
+                          in={state === "entered"}
+                          timeout={300}
+                          classNames="star"
+                          unmountOnExit
+                        >
+                          <div className="star">⭐</div>
+                        </CSSTransition>
+                      </HelpBlock>
+                    )}
+                  </CSSTransition>
+                </FormGroup>
+              </form>
+              {showValidationButton ? (
+                <Button
+                  onClick={() => {
+                    this.setState(state => ({
+                      showValidationButton: false,
+                      showValidationMessage: true
+                    }));
+                  }}
+                >
+                  Validate form
+                </Button>
+              ) : null}
+            </Grid>
+          );
+        }
+      }
+
+      ReactDOM.render(<Example />, document.getElementById("App"));
+    </script>
+  </body>
+</html>

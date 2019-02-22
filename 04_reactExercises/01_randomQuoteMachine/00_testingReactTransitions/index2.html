@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Testing React Transition Group</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <!-- <script src="https://unpkg.com/redux@4.0.1/dist/redux.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/6.0.0/react-redux.min.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script> -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/react-transition-group/dist/react-transition-group.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.32.4/react-bootstrap.min.js"></script> -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+    />
+  </head>
+
+  <body>
+    <div id="App"></div>
+    <script type="text/babel">
+      const Transition = ReactTransitionGroup.Transition;
+
+      const duration = 500;
+
+      const defaultStyle = {
+        transition: `opacity ${duration}ms ease-in-out`
+      };
+
+      const transationStyles = {
+        entering: { opacity: 0 },
+        entered: { opacity: 1 },
+        exiting: { opacity: 1 },
+        exited: { opacity: 0 }
+      };
+
+      class Fade extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            in: true,
+            phrase: "This is the first phrase"
+          };
+          // this.togglePhrase = this.togglePhrase.bind(this);
+          this.toggleState = this.toggleState.bind(this);
+        }
+        // togglePhrase() {
+        //   let phrase =
+        //     this.state.phrase == "This is the first phrase"
+        //       ? "Second Phrase showing"
+        //       : "This is the first phrase";
+        //   this.setState({
+        //     phrase
+        //   });
+        // }
+        toggleState() {
+          this.setState({
+            in: !this.state.in
+          });
+        }
+        render() {
+          return (
+            <div>
+              <p>{this.state.in.toString()}</p>
+
+              <Transition
+                in={this.state.in}
+                timeout={{ enter: duration, exit: 0 }}
+                onExiting={() => {
+                  this.setState({
+                    in: true
+                  });
+                }}
+                onEntered={() => {
+                  let phrase =
+                    this.state.phrase == "This is the first phrase"
+                      ? "Second Phrase showing"
+                      : "This is the first phrase";
+                  this.setState({
+                    phrase
+                  });
+                }}
+              >
+                {state => (
+                  <div style={{ ...defaultStyle, ...transationStyles[state] }}>
+                    {state.toString()}
+                    <br />
+                    {this.state.phrase}
+                  </div>
+                )}
+              </Transition>
+              <button onClick={this.toggleState}>Click to change</button>
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.render(<Fade />, document.getElementById("App"));
+    </script>
+  </body>
+</html>

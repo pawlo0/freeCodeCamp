@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/6.0.0/react-redux.min.js"></script>
     <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script> -->
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/react-transition-group/dist/react-transition-group.js"></script>
     <link
       rel="stylesheet"
       href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
@@ -24,11 +25,39 @@
       // React
       const quotesArray = [];
 
+      const colorsArray = [
+        "#16a085",
+        "#27ae60",
+        "#2c3e50",
+        "#f39c12",
+        "#e74c3c",
+        "#9b59b6",
+        "#FB6964",
+        "#342224",
+        "#472E32",
+        "#BDBB99",
+        "#77B1A9",
+        "#73A857"
+      ];
+
+      const { Transition } = ReactTransitionGroup;
+
+      const transitionDuration = 500;
+
+      const transationStyles = {
+        entering: { opacity: 0 },
+        entered: { opacity: 1 },
+        exiting: { opacity: 1 },
+        exited: { opacity: 0 }
+      };
+
       class QuoteBox extends React.Component {
         constructor(props) {
           super(props);
           this.state = {
-            quote: {}
+            quote: {},
+            color: colorsArray[Math.floor(Math.random() * colorsArray.length)],
+            in: true
           };
           this.changeQuote = this.changeQuote.bind(this);
         }
@@ -50,39 +79,82 @@
         }
         changeQuote() {
           this.setState({
-            quote: quotesArray[Math.floor(Math.random() * quotesArray.length)]
+            in: false
           });
         }
         render() {
           return (
-            <div id="quote-box">
-              <p id="text">
-                <i className="fa fa-quote-left" /> {this.state.quote.quote}
-              </p>
-              <p id="author"> - {this.state.quote.author}</p>
-              <div className="buttons">
-                <button
-                  id="new-quote"
-                  className="button"
-                  onClick={this.changeQuote}
+            <div
+              id="container"
+              style={{
+                backgroundColor: this.state.color,
+                transition: `background-color ${transitionDuration}ms ease-in-out`
+              }}
+            >
+              <div id="quote-box">
+                <Transition
+                  in={this.state.in}
+                  timeout={{ enter: transitionDuration, exit: 0 }}
+                  onExiting={() => {
+                    this.setState({
+                      in: true
+                    });
+                  }}
+                  onEntered={() => {
+                    this.setState({
+                      quote:
+                        quotesArray[
+                          Math.floor(Math.random() * quotesArray.length)
+                        ],
+                      color:
+                        colorsArray[
+                          Math.floor(Math.random() * colorsArray.length)
+                        ]
+                    });
+                  }}
                 >
-                  New Quote
-                </button>
-                <a
-                  id="tweet-quote"
-                  className="button"
-                  href={
-                    "https://twitter.com/intent/tweet?hashtags=quotes&related=freecodecamp&text=" +
-                    encodeURIComponent(
-                      '"' +
-                        this.state.quote.quote +
-                        '" ' +
-                        this.state.quote.author
-                    )
-                  }
-                >
-                  <i class="fab fa-twitter" />
-                </a>
+                  {state => (
+                    <div
+                      style={{
+                        transition: `opacity ${transitionDuration}ms ease-in-out`,
+                        ...transationStyles[state]
+                      }}
+                    >
+                      <p id="text" style={{ color: this.state.color }}>
+                        <i className="fa fa-quote-left" />{" "}
+                        {this.state.quote.quote}
+                      </p>
+                      <p id="author" style={{ color: this.state.color }}>
+                        {" "}
+                        - {this.state.quote.author}
+                      </p>
+                    </div>
+                  )}
+                </Transition>
+                <div className="buttons">
+                  <button
+                    id="new-quote"
+                    className="button"
+                    onClick={this.changeQuote}
+                  >
+                    New Quote
+                  </button>
+                  <a
+                    id="tweet-quote"
+                    className="button"
+                    href={
+                      "https://twitter.com/intent/tweet?hashtags=quotes&related=freecodecamp&text=" +
+                      encodeURIComponent(
+                        '"' +
+                          this.state.quote.quote +
+                          '" ' +
+                          this.state.quote.author
+                      )
+                    }
+                  >
+                    <i className="fab fa-twitter" />
+                  </a>
+                </div>
               </div>
             </div>
           );

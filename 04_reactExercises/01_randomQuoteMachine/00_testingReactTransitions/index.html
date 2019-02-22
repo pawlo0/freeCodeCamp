@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Testing React Transition Group</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <!-- <script src="https://unpkg.com/redux@4.0.1/dist/redux.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/6.0.0/react-redux.min.js"></script>
+    <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script> -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/react-transition-group/dist/react-transition-group.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.32.4/react-bootstrap.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+    />
+  </head>
+
+  <body>
+    <div id="App"></div>
+    <script type="text/babel">
+      const Transition = ReactTransitionGroup.Transition;
+      const { Grid, Button, Well } = ReactBootstrap;
+
+      class Example extends React.Component {
+        state = {
+          show: false,
+          entered: false
+        };
+
+        render() {
+          const { show } = this.state;
+          return (
+            <Grid style={{ paddingTop: "2rem" }}>
+              <Button
+                onClick={() => {
+                  this.setState(state => ({
+                    show: !state.show
+                  }));
+                }}
+              >
+                Toggle
+              </Button>
+              <Well style={{ marginTop: "1rem" }}>
+                <Transition in={show} timeout={1000} unmountOnExit>
+                  {state => {
+                    switch (state) {
+                      case "entering":
+                        return "Entering…";
+                      case "entered":
+                        return "Entered!";
+                      case "exiting":
+                        return "Exiting…";
+                      case "exited":
+                        return "Exited!";
+                    }
+                  }}
+                </Transition>
+              </Well>
+            </Grid>
+          );
+        }
+      }
+
+      ReactDOM.render(<Example />, document.getElementById("App"));
+    </script>
+  </body>
+</html>
