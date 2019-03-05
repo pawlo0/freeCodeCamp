@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Simple Javascript Calculator</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <style>
+      @import "https://fonts.googleapis.com/css?family=Share+Tech+Mono";
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row my-3">
+        <div class="col-12">
+          <h1 class="text-center">Simple JS Calculator</h1>
+        </div>
+      </div>
+      <div class="row justify-content-md-center align-items-center">
+        <div
+          id="App"
+          class="col col-sm-8 col-md-6 col-lg-4 border bg-dark rounded"
+        ></div>
+      </div>
+      <div class="row justify-content-md-center align-items-center">
+        <div class="col col-sm-8 col-md-6 col-lg-4">
+          <p class="text-center">
+            <small
+              >Designed and coded by
+              <a href="https://github.com/pawlo0" target="_blank"
+                >Paulo Santos</a
+              >.</small
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+    <script type="text/babel">
+      const CalcFunc = arr => {
+        let sanitizedArr =
+          arr[arr.length - 1] == "+" ||
+          arr[arr.length - 1] == "-" ||
+          arr[arr.length - 1] == "x" ||
+          arr[arr.length - 1] == "/" ||
+          arr[arr.length - 1] == "="
+            ? arr.slice(0, arr.length - 1)
+            : arr;
+
+        while (sanitizedArr.length > 1) {
+          let multiplyDivIndex = getIndex(sanitizedArr, true),
+            addSubtractIndex = getIndex(sanitizedArr, false),
+            result = 0;
+
+          if (multiplyDivIndex != -1) {
+            switch (sanitizedArr[multiplyDivIndex]) {
+              case "x":
+                result =
+                  sanitizedArr[multiplyDivIndex - 1] *
+                  sanitizedArr[multiplyDivIndex + 1];
+                break;
+              case "/":
+                result =
+                  sanitizedArr[multiplyDivIndex - 1] /
+                  sanitizedArr[multiplyDivIndex + 1];
+                break;
+            }
+            sanitizedArr = [
+              ...sanitizedArr.slice(0, multiplyDivIndex - 1),
+              result,
+              ...sanitizedArr.slice(multiplyDivIndex + 2)
+            ];
+          } else if (addSubtractIndex != -1) {
+            switch (sanitizedArr[addSubtractIndex]) {
+              case "+":
+                result =
+                  sanitizedArr[addSubtractIndex - 1] * 1 +
+                  sanitizedArr[addSubtractIndex + 1] * 1;
+                break;
+              case "-":
+                result =
+                  sanitizedArr[addSubtractIndex - 1] * 1 -
+                  sanitizedArr[addSubtractIndex + 1] * 1;
+                break;
+            }
+            sanitizedArr = [
+              ...sanitizedArr.slice(0, addSubtractIndex - 1),
+              result,
+              ...sanitizedArr.slice(addSubtractIndex + 2)
+            ];
+          }
+        }
+
+        return sanitizedArr[0] * 1;
+      };
+
+      const getIndex = (arr, multiplication) => {
+        let firstIndex = multiplication ? arr.indexOf("x") : arr.indexOf("+");
+        let secondIndex = multiplication ? arr.indexOf("/") : arr.indexOf("-");
+
+        if (firstIndex != -1 && secondIndex != -1) {
+          return Math.min(firstIndex, secondIndex);
+        } else if (firstIndex == -1 || secondIndex == -1) {
+          return Math.max(firstIndex, secondIndex);
+        }
+        return -1;
+      };
+
+      class Calculator extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            calcArr: ["\u00a0"],
+            result: 0,
+            display: "\u00a0",
+            insertMode: false
+          };
+          this.clearResult = this.clearResult.bind(this);
+          this.clearLast = this.clearLast.bind(this);
+          this.handleInput = this.handleInput.bind(this);
+          this.handleOperator = this.handleOperator.bind(this);
+          this.keyListener = this.keyListener.bind(this);
+        }
+        clearResult() {
+          this.setState({
+            result: 0,
+            display: "0",
+            calcArr: ["\u00a0"],
+            insertMode: false
+          });
+        }
+        clearLast() {
+          this.setState({
+            display: "0"
+          });
+        }
+
+        handleInput(value) {
+          let display = this.state.display;
+
+          if (!this.state.insertMode) {
+            if (value.toString().match(/[0-9]/)) {
+              display = "0";
+            } else if (value == "plusMinus" || value == "Backspace") {
+              display = this.state.result.toString();
+            }
+            if (this.state.calcArr[this.state.calcArr.length - 1] === "=") {
+              this.setState((state, props) => {
+                return { calcArr: ["\u00a0"] };
+              });
+            }
+          }
+
+          switch (value) {
+            case ".":
+              if (display.indexOf(".") === -1) {
+                if (display == "0") {
+                  display = "0.";
+                } else {
+                  display += value;
+                }
+              }
+              break;
+            case "Backspace":
+              if (
+                (display.length == 2 && display[0] == "-") ||
+                display.length < 2
+              ) {
+                display = "0";
+              } else {
+                display = display.substring(0, display.length - 1);
+              }
+              break;
+            case "plusMinus":
+              if (display[0] === "-") {
+                display = display.substring(1);
+              } else {
+                display = "-" + display;
+              }
+              break;
+            default:
+              if (display === "0") {
+                if (value != 0) {
+                  display = value.toString();
+                }
+              } else if (display === "-0") {
+                if (value != 0) {
+                  display = "-" + value.toString();
+                }
+              } else {
+                display += value.toString();
+              }
+          }
+
+          this.setState({
+            insertMode: true,
+            display
+          });
+        }
+
+        handleOperator(operation) {
+          let display =
+            this.state.display === "\u00a0" ? 0 : this.state.display * 1;
+          let calcArr =
+            this.state.calcArr[0] === "\u00a0" ? [] : this.state.calcArr;
+
+          const lastCalcElement = this.state.calcArr[
+            this.state.calcArr.length - 1
+          ];
+
+          if (lastCalcElement === "=") {
+            calcArr = [];
+            display = this.state.result * 1;
+          }
+
+          if (
+            !this.state.insertMode &&
+            operation != "equals" &&
+            (lastCalcElement === "+" ||
+              lastCalcElement === "-" ||
+              lastCalcElement === "x" ||
+              lastCalcElement === "/")
+          ) {
+            calcArr = calcArr.splice(0, calcArr.length - 1);
+          } else {
+            calcArr.push(display);
+          }
+
+          switch (operation) {
+            case "add":
+              calcArr.push("+");
+              break;
+            case "subtract":
+              calcArr.push("-");
+              break;
+            case "multiply":
+              calcArr.push("x");
+              break;
+            case "divide":
+              calcArr.push("/");
+              break;
+            case "equals":
+              calcArr.push("=");
+              break;
+          }
+
+          const result = CalcFunc(calcArr);
+
+          this.setState({
+            insertMode: false,
+            display: "0",
+            result,
+            calcArr
+          });
+        }
+
+        keyListener(key) {
+          if (key.match(/[0-9]/) || key == "." || key == "Backspace") {
+            this.handleInput(key);
+          } else if (key == "Delete") {
+            this.clearLast();
+          } else if (key == "Escape") {
+            this.clearResult();
+          } else {
+            switch (key) {
+              case "Enter":
+                this.handleOperator("equals");
+                break;
+              case "+":
+                this.handleOperator("add");
+                break;
+              case "-":
+                this.handleOperator("subtract");
+                break;
+              case "*":
+                this.handleOperator("multiply");
+                break;
+              case "/":
+                this.handleOperator("divide");
+                break;
+            }
+          }
+        }
+
+        componentDidMount() {
+          document.addEventListener("keydown", e => {
+            this.keyListener(e.key);
+          });
+        }
+
+        componentWillUnmount() {
+          document.removeEventListener("keypress", this.keyListener());
+        }
+
+        render() {
+          const display = this.state.insertMode
+            ? this.state.display
+            : this.state.result;
+          return (
+            <div style={{ fontFamily: "Share Tech Mono, monospace" }}>
+              <CalculatorScreen
+                calcString={this.state.calcArr.join("")}
+                display={display}
+              />
+              <CalculatorPad
+                clearResult={this.clearResult}
+                clearLast={this.clearLast}
+                handleInput={this.handleInput}
+                handleOperator={this.handleOperator}
+              />
+            </div>
+          );
+        }
+      }
+
+      const CalculatorScreen = props => {
+        return (
+          <div className="row">
+            <div className="col-12 text-right text-secondary">
+              <p style={{ marginBottom: "2px" }}>{props.calcString}</p>
+            </div>
+            <div className="col-12 text-right text-white">
+              <h1 id="display">{props.display}</h1>
+            </div>
+          </div>
+        );
+      };
+
+      const CalculatorPad = props => {
+        return (
+          <div>
+            <div className="row my-2">
+              <div className="col-3 px-1">
+                <button
+                  id="clearLast"
+                  type="button"
+                  className="btn btn-secondary btn-lg btn-block"
+                  onClick={props.clearLast}
+                >
+                  CE
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="clear"
+                  type="button"
+                  className="btn btn-secondary btn-lg btn-block"
+                  onClick={props.clearResult}
+                >
+                  C
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="backspace"
+                  type="button"
+                  className="btn btn-secondary btn-lg btn-block"
+                  onClick={() => props.handleInput("Backspace")}
+                >
+                  &larr;
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="divide"
+                  type="button"
+                  className="btn btn-secondary btn-lg btn-block"
+                  onClick={() => props.handleOperator("divide")}
+                >
+                  &divide;
+                </button>
+              </div>
+            </div>
+            <div className="row my-2">
+              <div className="col-3 px-1">
+                <button
+                  id="seven"
+                  type="button"
+                  className="btn btn-info btn-lg btn-block"
+                  onClick={() => props.handleInput(7)}
+                >
+                  7
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="eight"
+                  type="button"
+                  className="btn btn-info btn-lg btn-block"
+                  onClick={() => props.handleInput(8)}
+                >
+                  8
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="nine"
+                  type="button"
+                  className="btn btn-info btn-lg btn-block"
+                  onClick={() => props.handleInput(9)}
+                >
+                  9
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="multiply"
+                  type="button"
+                  className="btn btn-secondary btn-lg btn-block"
+                  onClick={() => props.handleOperator("multiply")}
+                >
+                  x
+                </button>
+              </div>
+            </div>
+            <div className="row my-2">
+              <div className="col-3 px-1">
+                <button
+                  id="four"
+                  type="button"
+                  className="btn btn-info btn-lg btn-block"
+                  onClick={() => props.handleInput(4)}
+                >
+                  4
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="five"
+                  type="button"
+                  className="btn btn-info btn-lg btn-block"
+                  onClick={() => props.handleInput(5)}
+                >
+                  5
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="six"
+                  type="button"
+                  className="btn btn-info btn-lg btn-block"
+                  onClick={() => props.handleInput(6)}
+                >
+                  6
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="subtract"
+                  type="button"
+                  className="btn btn-secondary btn-lg btn-block"
+                  onClick={() => props.handleOperator("subtract")}
+                >
+                  -
+                </button>
+              </div>
+            </div>
+            <div className="row my-2">
+              <div className="col-3 px-1">
+                <button
+                  id="one"
+                  type="button"
+                  className="btn btn-info btn-lg btn-block"
+                  onClick={() => props.handleInput(1)}
+                >
+                  1
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="two"
+                  type="button"
+                  className="btn btn-info btn-lg btn-block"
+                  onClick={() => props.handleInput(2)}
+                >
+                  2
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="three"
+                  type="button"
+                  className="btn btn-info btn-lg btn-block"
+                  onClick={() => props.handleInput(3)}
+                >
+                  3
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="add"
+                  type="button"
+                  className="btn btn-secondary btn-lg btn-block"
+                  onClick={() => props.handleOperator("add")}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div className="row my-2">
+              <div className="col-3 px-1">
+                <button
+                  id="plusMinus"
+                  type="button"
+                  className="btn btn-secondary btn-lg btn-block"
+                  onClick={() => props.handleInput("plusMinus")}
+                >
+                  &plusmn;
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="zero"
+                  type="button"
+                  className="btn btn-info btn-lg btn-block"
+                  onClick={() => props.handleInput(0)}
+                >
+                  0
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="decimal"
+                  type="button"
+                  className="btn btn-secondary btn-lg btn-block"
+                  onClick={() => props.handleInput(".")}
+                >
+                  .
+                </button>
+              </div>
+              <div className="col-3 px-1">
+                <button
+                  id="equals"
+                  type="button"
+                  className="btn btn-secondary btn-lg btn-block"
+                  onClick={() => props.handleOperator("equals")}
+                >
+                  =
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      ReactDOM.render(<Calculator />, document.getElementById("App"));
+    </script>
+  </body>
+</html>
