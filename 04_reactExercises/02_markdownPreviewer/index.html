@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Markdown Previewer</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.6.1/marked.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body>
+    <div id="App"></div>
+    <script type="text/babel">
+      const initialPlaceholder = `# Welcome to my React Markdown Previewer!
+
+      ## This is a sub-heading...
+      ### And here's some other cool stuff:
+        
+      Heres some code, \`<div></div>\`, between 2 backticks.
+
+      \`\`\`
+      // this is multi-line code:
+
+      function anotherExample(firstLine, lastLine) {
+        if (firstLine == '\`\`\`' && lastLine == '\`\`\`') {
+          return multiLineCode;
+        }
+      }
+      \`\`\`
+        
+      You can also make text **bold**... whoa!
+      Or _italic_.
+      Or... wait for it... **_both!_**
+      And feel free to go crazy ~~crossing stuff out~~.
+
+      There's also [links](https://www.freecodecamp.com), and
+      > Block Quotes!
+
+      And if you want to get really crazy, even tables:
+
+      Wild Header | Crazy Header | Another Header?
+      ------------ | ------------- | ------------- 
+      Your content can | be here, and it | can be here....
+      And here. | Okay. | I think we get it.
+
+      - And of course there are lists.
+        - Some are bulleted.
+          - With different indentation levels.
+              - That look like this.
+
+
+      1. And there are numbererd lists too.
+      1. Use just 1s if you want! 
+      1. But the list goes on...
+      - Even if you use dashes or asterisks.
+      * And last but not least, let's not forget embedded images:
+
+      ![React Logo w/ Text](https://goo.gl/Umyytc)
+      `;
+
+      var myMarked = marked;
+      var renderer = new myMarked.Renderer();
+      renderer.link = function(href, title, text) {
+        return `<a href="${href}" target="_blank">${text}</a>`;
+      };
+
+      class FullApp extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            input: initialPlaceholder
+          };
+          this.handleChange = this.handleChange.bind(this);
+        }
+        handleChange(event) {
+          this.setState({
+            input: event.target.value
+          });
+        }
+        render() {
+          return (
+            <div id="container" className="container">
+              <div className="row">
+                <Editor
+                  input={this.state.input}
+                  handleChange={this.handleChange}
+                />
+                <Preview
+                  mdPreview={marked(this.state.input, {
+                    sanitize: true,
+                    renderer: renderer,
+                    breaks: true
+                  })}
+                />
+              </div>
+            </div>
+          );
+        }
+      }
+
+      const Editor = props => {
+        return (
+          <div className="col-lg-6">
+            <div className="card">
+              <div className="card-header">Editor</div>
+              <textarea
+                className="form-control"
+                id="editor"
+                rows="15"
+                style={{ border: "1px solid rgba(0,0,0,.125)" }}
+                value={props.input}
+                onChange={props.handleChange}
+              />
+            </div>
+          </div>
+        );
+      };
+
+      const Preview = props => {
+        return (
+          <div className="col-lg-6">
+            <div className="card">
+              <div className="card-header">Preview</div>
+              <div className="card-body">
+                <div
+                  id="preview"
+                  dangerouslySetInnerHTML={{ __html: props.mdPreview }}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      ReactDOM.render(<FullApp />, document.getElementById("App"));
+    </script>
+  </body>
+</html>
