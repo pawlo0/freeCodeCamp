@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>FreeCodeCamp D3 Exercises: Bar chart</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <div class="container">
+        <div id="title">United States GDP</div>
+        <div class="visHolder"></div>
+      </div>
+    </div>
+    <script>
+      d3.json(
+        // Starting by retrieving data
+        "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json"
+      ).then(data => {
+        // Define width, height, padding of canvas and length of bars
+        const w = 800;
+        const h = 400;
+        const padding = 40;
+        const l = (w - padding) / data.data.length;
+
+        // scale the x axis
+        const xScale = d3
+          .scaleTime()
+          .domain([
+            d3.min(data.data, d => new Date(d[0])),
+            d3.max(data.data, d => new Date(d[0]))
+          ])
+          .range([padding, w - padding]);
+
+        // scale the y axis
+        const yScale = d3
+          .scaleLinear()
+          .domain([0, d3.max(data.data, d => d[1])])
+          .range([h - padding, padding]);
+
+        // draw the main canvas
+        const svg = d3
+          .select(".visHolder")
+          .append("svg")
+          .attr("width", w)
+          .attr("height", h);
+
+        // draw bottom and left axes
+        const xAxis = d3.axisBottom(xScale);
+        const yAxis = d3.axisLeft(yScale);
+
+        // this to instanciate the tip using d3.tip.
+        // woth some customization of text for the label
+        let tip = d3
+          .tip()
+          .attr("class", "d3-tip")
+          .attr("id", "tooltip")
+          .offset([-10, 0])
+          .html(d => {
+            const date = d[0].split("-");
+            let time = "";
+            switch (date[1]) {
+              case "01":
+                time = date[0] + " " + "Q1";
+                break;
+              case "04":
+                time = date[0] + " " + "Q2";
+                break;
+              case "07":
+                time = date[0] + " " + "Q3";
+                break;
+              case "10":
+                time = date[0] + " " + "Q4";
+            }
+            let valueText =
+              "$" +
+              d[1].toFixed(1).replace(/(\d)(?=(\d{3})+\.)/g, "$1,") +
+              " Billion";
+            return "<strong>" + time + ": </strong>" + valueText;
+          });
+
+        // draw the x-axis
+        // not forgeting to call the xScale
+        svg
+          .append("g")
+          .attr("id", "x-axis")
+          .attr("transform", "translate(0," + (h - padding) + ")")
+          .call(xAxis);
+
+        // draw the y-axis
+        // also not forgetting to call the yScale
+        svg
+          .append("g")
+          .attr("id", "y-axis")
+          .attr("transform", "translate(" + padding + ", 0)")
+          .call(yAxis);
+
+        // call the tip
+        svg.call(tip);
+
+        // draw the bars using the "rect" property
+        svg
+          .selectAll("rect")
+          .data(data.data)
+          .enter()
+          .append("rect")
+          .attr("x", d => xScale(new Date(d[0])))
+          .attr("y", d => yScale(d[1]))
+          .attr("width", l)
+          // it wasn't at my first try that I got the height right
+          .attr("height", d => h - padding - yScale(d[1]))
+          .attr("class", "bar")
+          .attr("data-date", (d, i) => d[0])
+          .attr("data-gdp", (d, i) => d[1])
+          // after some research was able to find how to have multiple actions for the "mouseover"
+          // and this way be able to change the data-date and data-gdp properties
+          // if done when the variable tip was instanciated it would give wrong results and test wouldn't pass
+          // this way attribute is given just when mouse is over
+          // but on the other hand couldn't make tip show if tip.show was inside function of "mouseover".
+          // was able to find that I can separate both events using "mouseover.something" and "mouseover.somethingElse"
+          // maybe there's another way, but this works
+          .on("mouseover.attr", d => {
+            tip.attr("data-date", d[0]);
+            tip.attr("data-gdp", d[1]);
+          })
+          .on("mouseover.tip", tip.show)
+          .on("mouseout", tip.hide);
+      });
+    </script>
+  </body>
+</html>
