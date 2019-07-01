@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>FreeCodeCamp D3 Exercises: Bar chart</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.8.6/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.8.6/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+        <div class='container' id="App"></div>
+    </div>
+    <script type="text/babel">
+    class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+        graphs: [
+            { value: "videoGames", selected: true, data: {} },
+            { value: "movies", selected: false, data: {} },
+            { value: "kickstarters", selected: false, data: {} }
+        ]
+        };
+        this.toogleGraph = this.toggleGraph.bind(this);
+    }
+
+    componentDidMount() {
+        Promise.all([
+        d3.json(
+            "https://cdn.rawgit.com/freeCodeCamp/testable-projects-fcc/a80ce8f9/src/data/tree_map/kickstarter-funding-data.json"
+        ),
+        d3.json(
+            "https://cdn.rawgit.com/freeCodeCamp/testable-projects-fcc/a80ce8f9/src/data/tree_map/movie-data.json"
+        ),
+        d3.json(
+            "https://cdn.rawgit.com/freeCodeCamp/testable-projects-fcc/a80ce8f9/src/data/tree_map/video-game-sales-data.json"
+        )
+        ]).then(data => {
+        let { graphs } = this.state;
+        // A bit upside down the sequence, but no matter,
+        // just grabing the json data and storing it in the state.
+        graphs[0].data = data[2];
+        graphs[1].data = data[1];
+        graphs[2].data = data[0];
+        this.setState({ graphs });
+        this.drawGraph(graphs.filter(d => d.selected)[0].data);
+        });
+    }
+
+    componentDidUpdate() {
+        this.drawGraph();
+    }
+
+    toggleGraph(event) {
+        let { graphs } = this.state;
+        graphs.map((g, i) => {
+        if (g.value == event.target.value) {
+            graphs[i].selected = true;
+        } else {
+            graphs[i].selected = false;
+        }
+        });
+        this.setState({ graphs });
+        this.drawGraph(graphs.filter(d => d.selected)[0].data);
+    }
+
+    drawGraph() {
+        d3.selectAll("svg > *").remove();
+
+        const data = this.state.graphs.filter(g => g.selected)[0].data;
+
+        const svg = d3.select(this.svgEl),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
+
+        const fader = color => d3.interpolateRgb(color, "#fff")(0.2);
+        const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+        const treemap = d3
+        .treemap()
+        .tile(d3.treemapResquarify)
+        .size([width, 400])
+        .round(false)
+        .paddingInner(1);
+
+        const root = d3
+        .hierarchy(data)
+        .eachBefore(d => (d.data.id = d.data.name))
+        .sum(d => d.value * 1)
+        .sort((a, b) => b.height - a.height || b.value - a.value);
+
+        treemap(root);
+
+        // this to instanciate the tip using d3.tip.
+        // with some customization of text for the label
+        let tip = d3
+        .tip()
+        .attr("class", "d3-tip")
+        .offset([-10, 0])
+        .html(d => {
+            return (
+            'Name: ' + d.data.name +
+            '<br>Category: ' + d.data.category +
+            '<br>Value: ' + d.data.value
+            );
+        });
+
+        // call the tip
+        svg.call(tip);
+
+        const cell = svg
+        .selectAll("g")
+        .data(root.leaves())
+        .enter()
+        .append("g")
+        .attr("class", "group")
+        .attr("transform", d => "translate(" + d.x0 + "," + d.y0 + ")");
+
+        const tile = cell
+        .append("rect")
+        .attr("width", d => d.x1 - d.x0)
+        .attr("height", d => d.y1 - d.y0)
+        .attr("fill", d => color(d.data.category))
+        .attr("class", "tile")
+        .attr("data-name", d => d.data.name)
+        .attr("data-category", d => d.data.category)
+        .attr("data-value", d => d.data.value)
+        .on("mouseover.attr", d => {
+            tip.attr("data-value", d.data.value)
+            tip.attr("id", "tooltip");
+        })
+        .on("mouseover.tip", tip.show)
+        .on("mouseout", tip.hide);
+
+        let categories = root.leaves().map(n => n.data.category);
+        categories = categories.filter(
+        (category, index, self) => self.indexOf(category) === index
+        );
+
+        // Legend
+        const size = 20;
+        const legend = svg
+        .append("g")
+        .attr("id", "legend")
+        .attr("transform", "translate(150," + 420 + ")")
+        .selectAll("mydots")
+        .data(categories)
+        .enter()
+        .append("g")
+        .attr(
+            "transform",
+            (d, i) =>
+            "translate(" +
+            (i % 3) * 200 +
+            "," +
+            (Math.floor(i / 3) * size + 10 * Math.floor(i / 3)) +
+            ")"
+        );
+
+        legend
+        .append("rect")
+        .attr("width", size)
+        .attr("height", size)
+        .style("fill", d => color(d))
+        .attr("class", "legend-item");
+
+        legend
+        .append("text")
+        .attr("x", size + 3)
+        .attr("y", size - 2)
+        .text(d => d)
+        .style("fill", "black");
+    }
+
+    render() {
+        const selected = this.state.graphs.filter(g => g.selected)[0];
+        let subTitle = "";
+        switch (selected.value) {
+        case "videoGames":
+            subTitle = "Top 100 Most Sold Video Games Grouped by Platform";
+            break;
+        case "movies":
+            subTitle = "Top 100 Highest Grossing Movies Grouped By Genre";
+            break;
+        case "kickstarters":
+            subTitle =
+            "Top 100 Most Pledged Kickstarter Campaigns Grouped By Category";
+        }
+        return (
+        <div>
+            <div className="header">
+            <div className="title">
+                <h1 id="title">
+                {selected.data ? selected.data.name : "Waiting data"}
+                </h1>
+                <h3 id="description">{subTitle}</h3>
+            </div>
+            <select value={selected.value} onChange={this.toogleGraph} className="select-css">
+                {this.state.graphs.map(g => (
+                <option value={g.value}>{g.data.name}</option>
+                ))}
+            </select>
+            </div>
+            <svg
+            width="900"
+            height="700"
+            style={{ paddingTop: 20 }}
+            ref={el => (this.svgEl = el)}
+            />
+        </div>
+        );
+    }
+    }
+
+    ReactDOM.render(<App />, document.getElementById("App"));
+
+    </script>
+  </body>
+</html>
